@@ -1,66 +1,60 @@
+let capture;
+let posenet;
+let noseX,noseY;
+let reyeX,reyeY;
+let leyeX,leyeY;
+let singlePose,skeleton;
+let actor_img;
+let gafas,piruleta;
 
-let video;
-let poseNet;
-let poses = [];
+function setup() {  // this function runs only once while running
+    createCanvas(800, 500);
+    //console.log("setup funct");
+    capture = createCapture(VIDEO);
+    capture.hide();
 
-function setup() {
-  createCanvas(640, 480);
-  video = createCapture(VIDEO);
-  video.size(width, height);
+    //load the PoseNet model
+    posenet = ml5.poseNet(capture, modelLOADED);
+    //detect pose
+    posenet.on('pose', recievedPoses);
 
-  // Create a new poseNet method with a single detection
-  poseNet = ml5.poseNet(video, modelReady);
-  // This sets up an event that fills the global variable "poses"
-  // with an array every time new poses are detected
-  poseNet.on('pose', function(results) {
-    poses = results;
-  });
-  // Hide the video element, and just show the canvas
-  video.hide();
+    actor_img = loadImage('images/shahrukh.png');
+    gafas = loadImage('images/gafas.png');
+    piruleta = loadImage('images/piruleta.png');
 }
 
-function modelReady() {
-  select('#status').html('Model Loaded');
+function recievedPoses(poses) {
+    console.log(poses);
+
+    if(poses.length > 0) {
+        singlePose = poses[0].pose;
+        skeleton = poses[0].skeleton;
+    }
 }
 
-function draw() {
-  image(video, 0, 0, width, height);
-
-  // We can call both functions to draw all keypoints and the skeletons
-  drawKeypoints();
-  drawSkeleton();
+function modelLOADED() {
+    console.log("model has loaded");
 }
+function draw() { // this function code runs in infinite loop
+    
+    // images and video(webcam)
+    image(capture, 0, 0);
+    fill(255, 0, 0);
+    
+    if(singlePose) {
+        for(let i=0; i<singlePose.keypoints.length; i++) {
+            ellipse(singlePose.keypoints[i].position.x, singlePose.keypoints[i].position.y, 20);
+        }
 
-// A function to draw ellipses over the detected keypoints
-function drawKeypoints()  {
-  // Loop through all the poses detected
-  for (let i = 0; i < poses.length; i++) {
-    // For each pose detected, loop through all the keypoints
-    let pose = poses[i].pose;
-    for (let j = 0; j < pose.keypoints.length; j++) {
-      // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-      let keypoint = pose.keypoints[j];
-      // Only draw an ellipse is the pose probability is bigger than 0.2
-      if (keypoint.score > 0.2) {
-        fill(255, 0, 0);
-        noStroke();
-        ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-      }
+        stroke(255, 255, 255);
+        strokeWeight(5);
+
+        for(let j=0; j<skeleton.length; j++) {
+            line(skeleton[j][0].position.x, skeleton[j][0].position.y, skeleton[j][1].position.x, skeleton[j][1].position.y);
+        }
+
+        // Apply gafas and piruleta
+        image(gafas, singlePose.nose.x-40, singlePose.nose.y-70, 125, 125);
+        image(piruleta, singlePose.nose.x-35, singlePose.nose.y+28, 50, 50);
     }
   }
-}
-
-// A function to draw the skeletons
-function drawSkeleton() {
-  // Loop through all the skeletons detected
-  for (let i = 0; i < poses.length; i++) {
-    let skeleton = poses[i].skeleton;
-    // For every skeleton, loop through all body connections
-    for (let j = 0; j < skeleton.length; j++) {
-      let partA = skeleton[j][0];
-      let partB = skeleton[j][1];
-      stroke(255, 0, 0);
-      line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
-    }
-  }
-}
