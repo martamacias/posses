@@ -54,7 +54,7 @@ function draw() { // this function code runs in infinite loop
         }
 
         // Apply gafas and piruleta
-        image(gafas, singlePose.nose.x-70, singlePose.nose.y+30, 125, 125);
+        image(gafas, singlePose.nose.x-70, singlePose.nose.y-60, 125, 125);
         image(piruleta, singlePose.nose.x-35, singlePose.nose.y+28, 50, 50);
     }
   }
