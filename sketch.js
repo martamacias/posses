@@ -35,6 +35,11 @@ function recievedPoses(poses) {
 function modelLOADED() {
     console.log("model has loaded");
 }
+
+function getRandomArbitrary(min, max) { // generate random num
+    return Math.random() * (max - min) + min;
+}
+
 function draw() { // this function code runs in infinite loop
     
     // images and video(webcam)
@@ -57,4 +62,10 @@ function draw() { // this function code runs in infinite loop
         image(gafas, singlePose.nose.x-60, singlePose.nose.y-90, 125, 125);
         image(piruleta, singlePose.nose.x-35, singlePose.nose.y+28, 50, 50);
     }
-  }
+    
+    r = getRandomArbitrary(0, 255);
+    g = getRandomArbitrary(0, 255);
+    b = getRandomArbitrary(0, 255);
+    fill(r,g,b);
+    ellipse(mouseX, mouseY, 50, 50);
+}
